@@ -5,7 +5,7 @@ set(CMAKE_TOOLCHAIN_FILE D:/vcpkg/scripts/buildsystems/vcpkg.cmake
 message(VCPKG_ROOT = "${CMAKE_TOOLCHAIN_FILE}")
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src/include)
 
-project(OpenGL)
+project(FluidSimulator)
 
 #find source files
 file(GLOB_RECURSE SOURCE_FILES

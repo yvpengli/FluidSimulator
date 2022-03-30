@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <vector>
+#include <sphere.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -82,6 +83,7 @@ int main()
     std::string rootDir = "../../";
     Shader ourShader( (rootDir + "src/shaders/modelVert.vs").c_str(), (rootDir + "src/shaders/modelFrag.fs").c_str());
     Shader skyboxShader( (rootDir + "src/shaders/skyboxVert.vs").c_str(), (rootDir + "src/shaders/skyboxFrag.fs").c_str());
+    Shader sphereShader( (rootDir + "src/shaders/sphereVert.vs").c_str(), (rootDir + "src/shaders/sphereFrag.fs").c_str());
     
     // load models
     // -----------
@@ -140,6 +142,18 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+    // sphere VAO
+    Sphere sphere( glm::vec3(0, 0, 0), 1 );
+    unsigned int sphereVAO, sphereVBO;
+    glGenVertexArrays(1, &sphereVAO);
+    glGenBuffers(1, &sphereVBO);
+    glBindVertexArray(sphereVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, sphereVBO);
+    std::vector<glm::vec3> sphereData( sphere.vertices.begin(), sphere.vertices.end() );
+    glBufferData(GL_ARRAY_BUFFER, sphereData.size() * sizeof(sphereData[0]), sphereData.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     
     vector<std::string> faces
     {
@@ -190,9 +204,9 @@ int main()
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", model);
-        ourModel.Draw(ourShader);
+        // model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        // ourShader.setMat4("model", model);
+        // ourModel.Draw(ourShader);
 
         // draw skybox as last
         // change depth function so depth test passes when values are equal to depth buffer's content
@@ -210,6 +224,18 @@ int main()
         glBindVertexArray(0);
         glDepthFunc(GL_LESS); // set depth function back to default
 
+        // draw sphere with lines
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        sphereShader.use();
+        view = camera.GetViewMatrix();
+        sphereShader.setMat4("view", view);
+        sphereShader.setMat4("projection", projection);
+
+        glBindVertexArray(sphereVAO);
+        glDrawArrays(GL_TRIANGLES, 0, sphereData.size());
+        glBindVertexArray(0);
+        // back to normal
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
