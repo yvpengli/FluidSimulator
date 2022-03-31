@@ -20,13 +20,8 @@ public:
             {-1, 0, 0}, { 0, 0,-1}, { 0,-1, 0}
         };
 
-        for (int i = 0; i < vertices.size(); i ++) {
-            vertices[i] += center;
-        }
-
         divide(1);
         normalize();
-        add_normal_info();
     }
 
     void divide(int times) {
@@ -57,24 +52,26 @@ public:
     }
 
     void normalize() {
-        for (int i = 0; i < vertices.size(); i ++) {
-            glm::vec3 pos = vertices[i];
-            glm::vec3 dir = glm::normalize(pos - center);
-            vertices[i] = center + dir * radius;
-        }
-    }
-
-    void add_normal_info() {
         int n = vertices.size();
         for (int i = 0; i < n; i ++) {
-            glm::vec3 pos = vertices.front();
+            glm::vec3 normalized_dir = glm::normalize( vertices.front() );
             vertices.pop_front();
-
-            glm::vec3 normal = glm::normalize(pos - center);
-            vertices.push_back(pos);
-            vertices.push_back(normal);
+            vertices.push_back(center + normalized_dir * radius );
+            vertices.push_back(normalized_dir);
         }
     }
+
+    // void add_normal_info() {
+    //     int n = vertices.size();
+    //     for (int i = 0; i < n; i ++) {
+    //         glm::vec3 pos = vertices.front();
+    //         vertices.pop_front();
+
+    //         glm::vec3 normal = glm::normalize(pos - center);
+    //         vertices.push_back(pos);
+    //         vertices.push_back(normal);
+    //     }
+    // }
 
 
 public:
