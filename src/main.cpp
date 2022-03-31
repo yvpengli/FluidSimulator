@@ -12,6 +12,7 @@
 #include <iostream>
 #include <vector>
 #include <sphere.h>
+#include "particle_system.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -21,7 +22,7 @@ unsigned int loadCubemap(std::vector<std::string> faces);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_HEIGHT = 800;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -143,18 +144,29 @@ int main()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
+    // Particle System
+    ParticleSystem particle_system(512);
+    particle_system.add_cube( {0.0, 0.0, 0.0}, 512 );
+    particle_system.create_balls();
+    std::vector<glm::vec3> sphereData( particle_system.position_and_normal.begin(), particle_system.position_and_normal.end() );
+    
+    // Sphere sphere( glm::vec3(0, 0, 0), 1 );
+    // std::vector<glm::vec3> sphereData( sphere.vertices.begin(), sphere.vertices.end() );
+
     // sphere VAO
-    Sphere sphere( glm::vec3(0, 0, 0), 1 );
     unsigned int sphereVAO, sphereVBO;
     glGenVertexArrays(1, &sphereVAO);
     glGenBuffers(1, &sphereVBO);
     glBindVertexArray(sphereVAO);
     glBindBuffer(GL_ARRAY_BUFFER, sphereVBO);
-    std::vector<glm::vec3> sphereData( sphere.vertices.begin(), sphere.vertices.end() );
     glBufferData(GL_ARRAY_BUFFER, sphereData.size() * sizeof(sphereData[0]), sphereData.data(), GL_STATIC_DRAW);
+    // position attribute
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    // normal attribute
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
     vector<std::string> faces
     {
         rootDir + "res/skybox/right.jpg",
@@ -167,7 +179,7 @@ int main()
     unsigned int cubemapTexture = loadCubemap(faces);
 
     // draw in wireframe
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // glPolygonMode(GL_FRONT, GL_FILL);
 
     // shader configuration
     skyboxShader.use();
@@ -203,7 +215,7 @@ int main()
 
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::translate(model, glm::vec3(-0.5f, -0.5f, -0.5f)); // translate it down so it's at the center of the scene
         // model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         // ourShader.setMat4("model", model);
         // ourModel.Draw(ourShader);
@@ -225,9 +237,10 @@ int main()
         glDepthFunc(GL_LESS); // set depth function back to default
 
         // draw sphere with lines
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         sphereShader.use();
         view = camera.GetViewMatrix();
+        sphereShader.setMat4("model", model);
         sphereShader.setMat4("view", view);
         sphereShader.setMat4("projection", projection);
 
@@ -235,7 +248,7 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, sphereData.size());
         glBindVertexArray(0);
         // back to normal
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
