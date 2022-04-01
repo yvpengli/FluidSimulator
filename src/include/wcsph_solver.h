@@ -4,7 +4,7 @@
 class WCSPHSolver {
 public:
 
-    WCSPHSolver(ParticleSystem particle_system) : ps(particle_system) {
+    WCSPHSolver(ParticleSystem& particle_system) : ps(particle_system) {
 
         mass = ps.m_V * density_ref;
         d_velocity = std::vector<glm::vec3>(ps.particle_num, {0.f, 0.f, 0.f});

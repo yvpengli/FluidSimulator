@@ -157,6 +157,9 @@ int main()
     // WCSPHSolver
     WCSPHSolver wcsph_solver(particle_system);
 
+    std::cout << "ps : " << &particle_system << std::endl;
+    std::cout << "ps in wcsph : " << &wcsph_solver.ps << std::endl;
+
 
     // sphere VAO
     unsigned int sphereVAO, sphereVBO;
