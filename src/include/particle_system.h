@@ -13,8 +13,11 @@ public:
         boundary = system_length / screen_to_world_ratio;
         screen_to_world_ratio = 400.0f;     // because screen size is (800, 800)
 
-        particle_radius = 0.03;
+        particle_radius = 0.05f;
         particle_diameter = 2 * particle_radius;
+        particle_num = 0;
+        m_V = 0.8 * pow(particle_diameter, 3.0f);
+
     }
 
     void add_cube(glm::vec3 lower_corner, float cube_size) {
@@ -33,6 +36,8 @@ public:
             for (float y = lower_corner[1] + particle_radius; y < upper_corner[1]; y += particle_diameter) {
                 for (float z = lower_corner[2] + particle_radius; z < upper_corner[2]; z += particle_diameter) {
                     this->x.push_back(glm::vec3(x, y, z));
+                    this->v.push_back(glm::vec3(0.0f));
+                    this->particle_num ++;
                 }
             }
         }
@@ -49,8 +54,9 @@ public:
                 position_and_normal.push_back(ball.vertices[j]);            
         }
 
+        // std::cout << "first point location: " << position_and_normal[0][0] << " " << position_and_normal[0][0] << " " << position_and_normal[0][0] << std::endl;
         // std::cout << "x.size() = " << x.size() << std::endl;
-        // std::cout << "position and normal size = " << position_and_normal.size() << endl;
+        // std::cout << "position and normal size = " << position_and_normal.size() << std::endl;
     }
 
 public:
@@ -63,6 +69,7 @@ public:
     float particle_diameter;
     int particle_max_num;
     int particle_num;
+    float m_V;
     // Single Particle Properties
     std::vector<glm::vec3> x;       
     std::vector<glm::vec3> v;

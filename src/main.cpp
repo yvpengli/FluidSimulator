@@ -13,6 +13,7 @@
 #include <vector>
 #include <sphere.h>
 #include "particle_system.h"
+#include "wcsph_solver.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -146,12 +147,16 @@ int main()
 
     // Particle System
     ParticleSystem particle_system(512);
-    particle_system.add_cube( {0.0, 0.0, 0.0}, 512 );
+    particle_system.add_cube( {100.0, 100.0, 100.0}, 200 );
     particle_system.create_balls();
     std::vector<glm::vec3> sphereData( particle_system.position_and_normal.begin(), particle_system.position_and_normal.end() );
     
     // Sphere sphere( glm::vec3(0, 0, 0), 1 );
     // std::vector<glm::vec3> sphereData( sphere.vertices.begin(), sphere.vertices.end() );
+
+    // WCSPHSolver
+    WCSPHSolver wcsph_solver(particle_system);
+
 
     // sphere VAO
     unsigned int sphereVAO, sphereVBO;
@@ -244,8 +249,16 @@ int main()
         sphereShader.setMat4("view", view);
         sphereShader.setMat4("projection", projection);
 
+        // update vertices data
+        wcsph_solver.step();
+        particle_system.create_balls();
+        std::vector<glm::vec3> updatedData( particle_system.position_and_normal.begin(), particle_system.position_and_normal.end() );
         glBindVertexArray(sphereVAO);
-        glDrawArrays(GL_TRIANGLES, 0, sphereData.size());
+        glBindBuffer(GL_ARRAY_BUFFER, sphereVBO);
+        glBufferData(GL_ARRAY_BUFFER, updatedData.size() * sizeof(updatedData[0]), updatedData.data(), GL_STATIC_DRAW);
+
+        // render balls
+        glDrawArrays(GL_TRIANGLES, 0, updatedData.size());
         glBindVertexArray(0);
         // back to normal
         // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -262,6 +275,9 @@ int main()
 
 
 }
+
+
+
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
