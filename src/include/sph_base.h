@@ -3,12 +3,16 @@
 
 class SPHBase {
 public:
-    SPHBase(ParticleSystem particle_system) : ps(particle_system) {
+    SPHBase(ParticleSystem &particle_system) : ps(particle_system) {
         mass = ps.m_V * density_ref;
 
     }
 
-
+    virtual void substep();
+    
+    void step() {
+        substep();
+    }
 
 
 public:

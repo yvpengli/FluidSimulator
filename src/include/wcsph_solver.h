@@ -28,7 +28,7 @@ public:
             ps.x[i] += dt * ps.v[i];
         }
 
-        std::cout << "first point location: " << ps.position_and_normal[0][0] << " " << ps.position_and_normal[0][0] << " " << ps.position_and_normal[0][0] << std::endl;
+        // std::cout << "first point location: " << ps.position_and_normal[0][0] << " " << ps.position_and_normal[0][1] << " " << ps.position_and_normal[0][2] << std::endl;
     }
 
     void substep() {
@@ -37,7 +37,10 @@ public:
     }
 
     void step() {
+        // update x[] and v[] by forces
         substep();
+        // boundary test
+        ps.enfoce_boundary();
     }
 
 public:
